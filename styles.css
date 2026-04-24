@@ -755,3 +755,16 @@ section {
     background: #1a1a1a;
     color: white;
 }
+
+/* සෙක්ෂන් එකේ සහ Footer එකේ තියෙන අමතර හිස් ඉඩවල් අයින් කරන්න */
+section.section, footer.footer {
+    background-color: #000000 !important; /* කළු පාටම දාන්න */
+    margin: 0 !important;
+    padding-bottom: 50px; /* මේක ඔයාට ඕන ගාණට වෙනස් කරගන්න */
+    padding-top: 50px;
+}
+
+/* බොඩි එකේ පසුබිම කළු කිරීමෙන් සුදු පටි පෙනීම වළක්වන්න පුළුවන් */
+body {
+    background-color: #000000;
+}
