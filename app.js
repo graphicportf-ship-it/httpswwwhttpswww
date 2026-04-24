@@ -158,7 +158,7 @@ function initScrollReveal() {
 }
 
 function buyOnWhatsApp(title) {
-    const phone = "94782594427";
+    const phone = "94777489095";
     const text = encodeURIComponent(`Hi! I'm interested in buying your design: "${title}". Can you provide more details?`);
     window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
 }
