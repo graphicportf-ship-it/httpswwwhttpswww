@@ -285,6 +285,11 @@ h1, h2, h3, .logo {
     z-index: 0;
 }
 
+.hero .container {
+    position: relative;
+    z-index: 1;
+}
+
 .hero-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -305,6 +310,21 @@ h1, h2, h3, .logo {
     color: var(--secondary);
     margin-bottom: 2.5rem;
     max-width: 540px;
+}
+
+.hero-img {
+    animation: heroImageFloat 6s ease-in-out infinite;
+    transition: transform 0.5s ease;
+}
+
+.hero-img:hover {
+    transform: scale(1.05);
+}
+
+@keyframes heroImageFloat {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
 }
 
 /* Buttons */
