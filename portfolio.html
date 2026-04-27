@@ -12,25 +12,45 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyDY_HmNfD_QFLI7Vwj39s1b3WHKEKD80nQ",
+        authDomain: "ovkb-8d398.firebaseapp.com",
+        projectId: "ovkb-8d398",
+        storageBucket: "ovkb-8d398.firebasestorage.app",
+        messagingSenderId: "804850492300",
+        appId: "1:804850492300:web:cf90f3c83773e1f13caca9"
+      };
+      firebase.initializeApp(firebaseConfig);
+      window.db = firebase.firestore();
+    </script>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg fixed-top py-3">
+    <nav class="navbar navbar-expand-lg fixed-top py-3 transition-all" id="main-navbar">
         <div class="container">
             <a href="index.html" class="navbar-brand logo">OVKB</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <button class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto gap-lg-4 align-items-center">
                     <li class="nav-item"><a href="index.html" class="nav-link">Home</a></li>
                     <li class="nav-item"><a href="about.html" class="nav-link">About</a></li>
-                    <li class="nav-item"><a href="portfolio.html" class="nav-link active">Portfolio</a></li>
+                    <li class="nav-item"><a href="portfolio.html" class="nav-link">Portfolio</a></li>
                     <li class="nav-item"><a href="contact.html" class="nav-link">Contact</a></li>
-                    <li class="nav-item"><a href="contact.html" class="btn btn-primary rounded-pill px-4 ms-lg-2">Start a Project</a></li>
+                    <li class="nav-item ms-lg-2">
+                        <a href="contact.html" class="btn btn-primary rounded-pill px-4 shine-effect">Start a Project</a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
+    <script src="load-header.js"></script>
+
 
     <header class="hero">
         <div class="container">
@@ -49,17 +69,8 @@
     <section class="section">
         <div class="container">
             <div class="portfolio-filters mb-5">
-                <div class="filter-group-main mb-4 text-center">
-                    <div id="main-filter">
-                        <!-- 'All Categories' button goes here -->
-                    </div>
-                </div>
-                <div class="filter-group-categories mb-3 d-flex flex-wrap justify-content-center gap-2" id="category-filters">
-                    <!-- Categories loaded via JS -->
-                </div>
-                <div class="filter-group-sub d-flex flex-wrap justify-content-center gap-2" id="sub-category-filters">
-                    <!-- Sub-categories loaded via JS -->
-                </div>
+                <div class="filter-group-categories mb-3 d-flex flex-wrap justify-content-center gap-2" id="category-filters"></div>
+                <div class="filter-group-sub d-flex flex-wrap justify-content-center gap-2" id="sub-category-filters"></div>
             </div>
 
             <div id="graphics-grid" class="graphics-grid">

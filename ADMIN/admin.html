@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Designs by OVKB</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="../styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyDY_HmNfD_QFLI7Vwj39s1b3WHKEKD80nQ",
+        authDomain: "ovkb-8d398.firebaseapp.com",
+        projectId: "ovkb-8d398",
+        storageBucket: "ovkb-8d398.firebasestorage.app",
+        messagingSenderId: "804850492300",
+        appId: "1:804850492300:web:cf90f3c83773e1f13caca9"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.firestore();
+    </script>
+</head>
+<body class="bg-light">
+    <nav class="navbar navbar-expand-lg fixed-top py-3 transition-all" id="main-navbar">
+        <div class="container">
+            <a href="../index.html" class="navbar-brand logo">OVKB</a>
+            <button class="navbar-toggler custom-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto gap-lg-4 align-items-center">
+                    <li class="nav-item"><a href="../index.html" class="nav-link">Home</a></li>
+                    <li class="nav-item"><a href="../about.html" class="nav-link">About</a></li>
+                    <li class="nav-item"><a href="../portfolio.html" class="nav-link">Portfolio</a></li>
+                    <li class="nav-item"><a href="../animations.html" class="nav-link">Animations</a></li>
+                    <li class="nav-item"><a href="../contact.html" class="nav-link">Contact</a></li>
+                    <li class="nav-item ms-lg-2">
+                        <a href="../contact.html" class="btn btn-primary rounded-pill px-4 shine-effect">Start a Project</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+    <script src="../load-header.js"></script>
+
+
+
+    <div class="container py-5">
+        <div class="d-flex justify-content-between align-items-center mb-5">
+            <h1 class="fw-bold h2">Admin Dashboard</h1>
+            <span id="status-text" class="badge bg-primary px-3 py-2">Syncing...</span>
+        </div>
+
+        <div class="row g-4">
+            <!-- Category Management -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <h2 class="h5 fw-bold mb-4">Manage Categories</h2>
+                    <form id="category-form" class="mb-4">
+                        <div class="mb-3">
+                            <label class="form-label">Category Name</label>
+                            <input type="text" id="cat-name" class="form-control" placeholder="e.g. Greeting Cards" required>
+                        </div>
+                        <button type="submit" class="btn btn-dark w-100 rounded-pill">Add Category</button>
+                    </form>
+                    <div id="cat-list" class="list-group list-group-flush">
+                        <!-- Categories loaded via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sub-category Management -->
+            <div class="col-md-6">
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <h2 class="h5 fw-bold mb-4">Manage Sub-categories</h2>
+                    <form id="sub-category-form" class="mb-4">
+                        <div class="mb-3">
+                            <label class="form-label">Parent Category</label>
+                            <select id="sub-cat-parent" class="form-select" required></select>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Sub-category Name</label>
+                            <input type="text" id="sub-cat-name" class="form-control" placeholder="e.g. Birthday" required>
+                        </div>
+                        <button type="submit" class="btn btn-dark w-100 rounded-pill">Add Sub-category</button>
+                    </form>
+                    <div id="sub-cat-list" class="list-group list-group-flush">
+                        <!-- Sub-categories loaded via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Graphic Management -->
+            <div class="col-12">
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <h2 class="h5 fw-bold mb-4">Upload New Graphic</h2>
+                    <form id="graphic-form" class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Sub-category</label>
+                            <select id="graphic-sub-cat" class="form-select" required></select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Design Title</label>
+                            <input type="text" id="graphic-title" class="form-control" placeholder="e.g. Floral Greeting" required>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Image File</label>
+                            <input type="file" id="graphic-file" class="form-control" accept="image/*" required>
+                        </div>
+                        <div class="col-12 mt-4">
+                            <button type="submit" id="upload-btn" class="btn btn-primary w-100 rounded-pill py-2">Upload & Save Design</button>
+                        </div>
+                    </form>
+
+                    <hr class="my-5">
+                    
+                    <h3 class="h5 fw-bold mb-4">Current Portfolio</h3>
+                    <div id="admin-graphics-list" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
+                        <!-- Graphics loaded via JS -->
+                    </div>
+                </div>
+            </div>
+            <!-- Animation Management -->
+            <div class="col-12 mt-5">
+                <div class="card border-0 shadow-sm rounded-4 p-4">
+                    <h2 class="h5 fw-bold mb-4">Manage Animations (Firebase)</h2>
+                    <form id="animation-form" class="row g-3" novalidate>
+                        <div class="col-md-3">
+                            <label class="form-label">Category</label>
+                            <select id="anim-cat" class="form-select" required>
+                                <option value="">Select Category</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Sub-category</label>
+                            <select id="anim-sub-cat" class="form-select" required>
+                                <option value="">Select Sub-category</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Animation Title</label>
+                            <input type="text" id="anim-title" class="form-control" placeholder="e.g. Birthday Special" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">YouTube URL or Embed Code</label>
+                            <input type="text" id="anim-url" class="form-control" placeholder="Paste URL or Iframe here" required>
+                        </div>
+                        <div class="col-12 mt-4">
+                            <button type="submit" class="btn btn-primary w-100 rounded-pill py-2">Add Animation to Gallery</button>
+                        </div>
+                    </form>
+                    
+                    <div class="table-responsive mt-4">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Title</th>
+                                    <th>Category Info</th>
+                                    <th>Preview</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="anim-list-tbody">
+                                <!-- Animations loaded via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Logic for Animations -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const animForm = document.getElementById('animation-form');
+            const animListTbody = document.getElementById('anim-list-tbody');
+            const animCatDropdown = document.getElementById('anim-cat');
+            const animSubCatDropdown = document.getElementById('anim-sub-cat');
+
+            function getYoutubeID(url) {
+                // Handle iframe strings
+                if (url.includes('<iframe')) {
+                    const srcMatch = url.match(/src=["']([^"']+)["']/);
+                    if (srcMatch) url = srcMatch[1];
+                }
+                const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+                const match = url.match(regExp);
+                return (match && match[2].length === 11) ? match[2] : null;
+            }
+
+            // Add Animation
+            if (animForm) {
+                animForm.onsubmit = async (e) => {
+                    e.preventDefault();
+                    const title = document.getElementById('anim-title').value;
+                    const url = document.getElementById('anim-url').value;
+                    const categoryId = animCatDropdown.value;
+                    const subCategoryId = animSubCatDropdown.value;
+                    const youtubeId = getYoutubeID(url);
+
+                    if (!youtubeId) return alert("Invalid YouTube URL");
+
+                    try {
+                        await db.collection("animations").add({
+                            title,
+                            youtubeId,
+                            url,
+                            categoryId,
+                            subCategoryId,
+                            type: "Animations",
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        alert("Animation added successfully!");
+                        animForm.reset();
+                    } catch (err) {
+                        console.error(err);
+                        alert("Error adding animation: " + err.message);
+                    }
+                };
+            }
+
+            let localAnims = {}; // To store animation data safely
+            if (animListTbody) {
+                db.collection("animations").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
+                    animListTbody.innerHTML = '';
+                    localAnims = {}; 
+                    snapshot.forEach((docSnap) => {
+                        const anim = docSnap.data();
+                        localAnims[docSnap.id] = anim; // Save to local state
+                        const tr = document.createElement('tr');
+                        tr.id = `row-${docSnap.id}`;
+                        tr.innerHTML = `
+                            <td class="fw-bold" style="vertical-align: middle;">${anim.title}</td>
+                            <td style="vertical-align: middle;"><span class="badge bg-light text-dark">${anim.type}</span></td>
+                            <td style="vertical-align: middle;">
+                                <iframe width="160" height="90" src="https://www.youtube.com/embed/${anim.youtubeId}" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                            </td>
+                            <td class="text-end" style="vertical-align: middle;">
+                                <button class="btn btn-sm btn-outline-primary rounded-pill px-3 me-2" onclick="openEditAnimModal('${docSnap.id}')">Edit</button>
+                                <button class="btn btn-sm btn-outline-danger rounded-pill px-3" onclick="deleteAnimation('${docSnap.id}')">Delete</button>
+                            </td>
+                        `;
+                        animListTbody.appendChild(tr);
+                    });
+                });
+            }
+
+            window.deleteAnimation = async (id) => {
+                if (confirm("Delete this animation?")) {
+                    await db.collection("animations").doc(id).delete();
+                }
+            };
+
+            const editAnimModal = new bootstrap.Modal(document.getElementById('editAnimModal'));
+            const editAnimForm = document.getElementById('edit-anim-form');
+
+            window.openEditAnimModal = (id) => {
+                const anim = localAnims[id];
+                if (!anim) return;
+                document.getElementById('edit-anim-id').value = id;
+                document.getElementById('edit-anim-title').value = anim.title;
+                document.getElementById('edit-anim-url').value = anim.url;
+                editAnimModal.show();
+            };
+
+            editAnimForm.onsubmit = async (e) => {
+                e.preventDefault();
+                const id = document.getElementById('edit-anim-id').value;
+                const title = document.getElementById('edit-anim-title').value;
+                const url = document.getElementById('edit-anim-url').value;
+                const youtubeId = getYoutubeID(url);
+
+                if (!youtubeId) return alert("Invalid YouTube URL");
+
+                try {
+                    await db.collection("animations").doc(id).update({
+                        title,
+                        url,
+                        youtubeId
+                    });
+                    editAnimModal.hide();
+                    alert("Animation updated successfully!");
+                } catch (err) {
+                    console.error(err);
+                    alert("Error updating: " + err.message);
+                }
+            };
+        });
+    </script>
+
+    <!-- Edit Animation Modal -->
+    <div class="modal fade" id="editAnimModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Edit Animation</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-anim-form" novalidate>
+                        <input type="hidden" id="edit-anim-id">
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" id="edit-anim-title" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">YouTube URL or Embed Code</label>
+                            <input type="text" id="edit-anim-url" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-dark w-100 rounded-pill py-2 mt-3">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Graphic Modal -->
+    <div class="modal fade" id="editGraphicModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content rounded-4 border-0 shadow">
+                <div class="modal-header border-0">
+                    <h5 class="modal-title fw-bold">Edit Graphic</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-graphic-form">
+                        <input type="hidden" id="edit-graphic-id">
+                        <div class="mb-3">
+                            <label class="form-label">Title</label>
+                            <input type="text" id="edit-graphic-title" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Sub-category</label>
+                            <select id="edit-graphic-sub-cat" class="form-select" required></select>
+                        </div>
+                        <button type="submit" class="btn btn-dark w-100 rounded-pill py-2 mt-3">Save Changes</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
