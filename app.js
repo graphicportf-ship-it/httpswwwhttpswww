@@ -39,6 +39,8 @@ async function init() {
     
     initScrollReveal();
     setupModal();
+    initSmoothScroll();
+    initContactForm();
 }
 
 async function fetchData() {
@@ -316,6 +318,75 @@ function initScrollReveal() {
         entries.forEach(entry => { if (entry.isIntersecting) entry.target.classList.add('reveal-visible'); });
     }, { threshold: 0.1 });
     document.querySelectorAll('section, .hero, .page-header').forEach(el => { el.classList.add('reveal'); observer.observe(el); });
+}
+
+function initSmoothScroll() {
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            if (targetId === '#') return;
+            
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                const navHeight = document.querySelector('.navbar').offsetHeight;
+                const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - navHeight;
+                
+                window.scrollTo({
+                    top: targetPosition,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    });
+}
+
+function initContactForm() {
+    const form = document.getElementById('contact-form');
+    const status = document.getElementById('form-status');
+    
+    if (!form) return;
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(form);
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sending...';
+        
+        try {
+            const response = await fetch(form.action, {
+                method: form.method,
+                body: formData,
+                headers: { 'Accept': 'application/json' }
+            });
+            
+            if (response.ok) {
+                status.style.display = 'block';
+                status.className = 'mt-3 text-center text-success fw-bold p-3 rounded-3 bg-success-subtle border border-success';
+                status.innerHTML = '✨ Message sent successfully! We\'ll get back to you soon.';
+                form.reset();
+            } else {
+                const data = await response.json();
+                throw new Error(data.errors ? data.errors.map(e => e.message).join(", ") : 'Oops! There was a problem.');
+            }
+        } catch (error) {
+            status.style.display = 'block';
+            status.className = 'mt-3 text-center text-danger fw-bold p-3 rounded-3 bg-danger-subtle border border-danger';
+            status.innerHTML = '❌ ' + error.message;
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnText;
+            
+            // Hide status after 5 seconds
+            setTimeout(() => {
+                status.style.display = 'none';
+            }, 5000);
+        }
+    });
 }
 
 window.buyOnWhatsApp = (title) => {

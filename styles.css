@@ -614,6 +614,51 @@ h1, h2, h3, .logo {
     color: var(--accent);
 }
 
+/* Contact Form Styles */
+.contact-form-container {
+    background: var(--surface) !important;
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(10px);
+    transition: var(--transition);
+}
+
+.contact-form-container:hover {
+    border-color: rgba(99, 102, 241, 0.3);
+}
+
+.contact-form-container .form-control {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid var(--glass-border);
+    color: var(--text) !important;
+    border-radius: 15px;
+    padding: 1rem;
+    transition: var(--transition);
+}
+
+.contact-form-container .form-control:focus {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 4px var(--accent-light);
+    outline: none;
+}
+
+.contact-form-container label {
+    color: var(--secondary) !important;
+    padding-left: 1.2rem;
+}
+
+.form-floating > .form-control:focus ~ label,
+.form-floating > .form-control:not(:placeholder-shown) ~ label {
+    color: var(--accent) !important;
+    transform: scale(.85) translateY(-.5rem) translateX(.15rem);
+}
+
+.contact-info-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
 /* Footer */
 .footer {
     padding: 80px 0 40px;

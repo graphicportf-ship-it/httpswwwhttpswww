@@ -43,7 +43,7 @@
                     <h1>Thoughtful Digital Art & Designs.</h1>
                     <p>Designs by OVKB is a creative digital art initiative dedicated to producing thoughtful greeting cards and visual artwork that reflect warmth, sincerity, and emotional connection.</p>
                     <div class="d-flex flex-wrap gap-3">
-                        <a href="portfolio.html" class="btn btn-primary rounded-pill px-5">Explore Work</a>
+                        <a href="#works" class="btn btn-primary rounded-pill px-5">Explore Work</a>
                         <a href="about.html" class="btn btn-outline-dark rounded-pill px-5">About Us</a>
                     </div>
                 </div>
@@ -53,6 +53,28 @@
             </div>
         </div>
     </header>
+
+    <section id="works" class="section">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h2 class="display-5 fw-bold mb-3">Our Works</h2>
+                <p class="text-muted">Browse through our collection of premium designs and animations.</p>
+            </div>
+
+            <div class="portfolio-filters mb-5">
+                <div class="filter-group-categories mb-3 d-flex flex-wrap justify-content-center gap-2" id="category-filters"></div>
+                <div class="filter-group-sub d-flex flex-wrap justify-content-center gap-2" id="sub-category-filters"></div>
+            </div>
+
+            <div id="graphics-grid" class="graphics-grid">
+                <div class="col-12 text-center text-muted">Sincerity takes time... loading designs.</div>
+            </div>
+            
+            <div class="text-center mt-5">
+                <a href="portfolio.html" class="btn btn-outline-primary rounded-pill px-5">View Full Portfolio</a>
+            </div>
+        </div>
+    </section>
 
     <footer class="footer py-5">
         <div class="container text-center">
@@ -66,6 +88,10 @@
             <p class="copyright mb-0">&copy; 2026 Designs by OVKB. Crafted with sincerity.</p>
         </div>
     </footer>
+
+    <!-- Firebase SDKs (Required for app.js) -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
