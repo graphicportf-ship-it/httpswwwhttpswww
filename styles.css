@@ -631,7 +631,7 @@ h1, h2, h3, .logo {
     border: 1px solid var(--glass-border);
     color: var(--text) !important;
     border-radius: 15px;
-    padding: 1rem;
+    padding: 1.2rem 1rem 0.8rem 1rem; /* Added more top padding for labels */
     transition: var(--transition);
 }
 
@@ -644,13 +644,17 @@ h1, h2, h3, .logo {
 
 .contact-form-container label {
     color: var(--secondary) !important;
-    padding-left: 1.2rem;
+    padding: 1rem 1.2rem; /* Adjusted padding */
 }
 
 .form-floating > .form-control:focus ~ label,
 .form-floating > .form-control:not(:placeholder-shown) ~ label {
     color: var(--accent) !important;
-    transform: scale(.85) translateY(-.5rem) translateX(.15rem);
+    transform: scale(.8) translateY(-0.8rem) translateX(0.15rem); /* Better positioning */
+    background: var(--surface); /* Added background to make label readable */
+    padding: 0 0.5rem;
+    height: auto;
+    border-radius: 4px;
 }
 
 .contact-info-sidebar {
