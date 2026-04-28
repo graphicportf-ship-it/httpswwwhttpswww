@@ -1,0 +1,43 @@
+name: Obfuscate and Deploy
+
+on:
+  push:
+    branches:
+      - main  # ඔයා code එක push කරන්නේ main branch එකට නම්
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js ⚙️
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Obfuscators 🛠️
+        run: |
+          npm install -g javascript-obfuscator html-minifier-terser clean-css-cli
+
+      - name: Process Files 🔒
+        run: |
+          # 1. JS files obfuscate කිරීම
+          find . -type f -name "*.js" -exec javascript-obfuscator {} --output {} \;
+
+          # 2. CSS files minify කිරීම
+          find . -type f -name "*.css" -exec cleancss -o {} {} \;
+
+          # 3. HTML files (Google file එක හැර) minify කිරීම
+          # මෙතනදී googlec139648909f99a98.html එක skip කරනවා
+          find . -type f -name "*.html" ! -name "googlec139648909f99a98.html" -exec html-minifier-terser --collapse-whitespace --remove-comments --minify-js true --minify-css true -o {} {} \;
+
+      - name: Deploy to GitHub Pages 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: .        # ඔක්කොම ෆයිල් ටික deploy කරන්න
+          branch: gh-pages # මේක තමයි obfuscate වෙච්ච code එක තියෙන තැන
