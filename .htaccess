@@ -1,4 +1,10 @@
 RewriteEngine On
+
+# 1. කවුරුහරි .html එක්ක ටයිප් කළොත් ඒක අයින් කරලා Redirect කරන්න
+RewriteCond %{THE_REQUEST} /([^.]+)\.html [NC]
+RewriteRule ^ /%1 [L,R=301]
+
+# 2. .html නැතුව ටයිප් කරද්දී පිටුපසින් අදාළ html ෆයිල් එක ලෝඩ් කරන්න
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME}\.html -f
-RewriteRule ^(.*)$ $1.html [NC,L]
+RewriteRule ^(.*)$ $1.html [L]
