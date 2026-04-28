@@ -1,9 +1,9 @@
-name: Obfuscate and Deploy
+name: Obfuscate and Clean URLs
 
 on:
   push:
     branches:
-      - main  # ඔයා code එක push කරන්නේ main branch එකට නම්
+      - main
 
 permissions:
   contents: write
@@ -20,24 +20,29 @@ jobs:
         with:
           node-version: '20'
 
-      - name: Install Obfuscators 🛠️
+      - name: Install Tools 🛠️
         run: |
           npm install -g javascript-obfuscator html-minifier-terser clean-css-cli
 
       - name: Process Files 🔒
         run: |
-          # 1. JS files obfuscate කිරීම
+          # 1. URL එක පිරිසිදු කරන Script එකක් හැම HTML එකකටම ඇතුළත් කිරීම (Google file එක හැර)
+          # මේකෙන් .html සහ /index කියන කෑලි URL එකෙන් අයින් කරනවා
+          CLEAN_URL_SCRIPT='<script>if(window.location.pathname.endsWith(".html")||window.location.pathname.endsWith("/index")){let c=window.location.pathname.replace(/\.html$/,"").replace(/\/index$/,"/");window.history.replaceState(null,"",c+window.location.search+window.location.hash)}</script>'
+          
+          find . -type f -name "*.html" ! -name "googlec139648909f99a98.html" -exec sed -i "s|<\/head>|${CLEAN_URL_SCRIPT}<\/head>|g" {} \;
+
+          # 2. JS files obfuscate කිරීම
           find . -type f -name "*.js" -exec javascript-obfuscator {} --output {} \;
 
-          # 2. CSS files minify කිරීම
+          # 3. CSS files minify කිරීම
           find . -type f -name "*.css" -exec cleancss -o {} {} \;
 
-          # 3. HTML files (Google file එක හැර) minify කිරීම
-          # මෙතනදී googlec139648909f99a98.html එක skip කරනවා
+          # 4. HTML files minify කිරීම (Google file එක හැර)
           find . -type f -name "*.html" ! -name "googlec139648909f99a98.html" -exec html-minifier-terser --collapse-whitespace --remove-comments --minify-js true --minify-css true -o {} {} \;
 
       - name: Deploy to GitHub Pages 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: .        # ඔක්කොම ෆයිල් ටික deploy කරන්න
-          branch: gh-pages # මේක තමයි obfuscate වෙච්ච code එක තියෙන තැන
+          folder: .
+          branch: gh-pages
