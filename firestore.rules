@@ -1,0 +1,20 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Animations Collection
+    match /animations/{animationId} {
+      // Professional rule: Anyone can view animations
+      allow read: if true;
+      
+      // For testing, allowing write. SECURE THIS LATER!
+      allow write: if true;
+    }
+
+    // Default: Deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
