@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OVKB - Pro Content Protector</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: #020617;
+            color: #f8fafc;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        #preview-box {
+            position: relative;
+            background: #000;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+        }
+
+        /* Large visual overlay for the browser preview only */
+        .preview-watermark {
+            position: absolute;
+            pointer-events: none;
+            z-index: 10;
+            font-weight: 900;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 15vw;
+            transform: rotate(-30deg);
+            white-space: nowrap;
+            user-select: none;
+        }
+
+        #hidden-canvas {
+            display: none;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border-left-color: #3b82f6;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-5xl glass p-8 md:p-12 rounded-[2.5rem] shadow-2xl">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl font-black text-white mb-2 tracking-tighter">OVKB <span class="text-blue-500">STUDIO</span></h1>
+            <p class="text-slate-500 text-xs font-bold uppercase tracking-[0.2em]">High-Security Media Watermarking</p>
+        </header>
+
+        <!-- Step 1: Upload -->
+        <div id="upload-section">
+            <label for="file-input" class="group border-2 border-dashed border-slate-800 hover:border-blue-500 bg-slate-900/50 rounded-3xl p-20 flex flex-col items-center justify-center cursor-pointer transition-all">
+                <div class="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <i class="fas fa-file-import text-3xl text-blue-500"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">Upload Content</h3>
+                <p class="text-slate-500">Drop your Image or Video here</p>
+                <input type="file" id="file-input" class="hidden" accept="image/*,video/*">
+            </label>
+        </div>
+
+        <!-- Step 2: Editor/Preview -->
+        <div id="editor-section" class="hidden">
+            <div id="preview-box" class="mb-8 border border-slate-800">
+                <div class="preview-watermark">OVKB</div>
+                <div id="media-content" class="w-full h-full flex items-center justify-center"></div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button id="download-btn" class="bg-blue-600 hover:bg-blue-500 text-white font-black py-4 px-12 rounded-2xl transition-all flex items-center justify-center">
+                    <i class="fas fa-download mr-3"></i> DOWNLOAD WATERMARKED
+                </button>
+                <button onclick="location.reload()" class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-4 px-10 rounded-2xl transition-all">
+                    CANCEL
+                </button>
+            </div>
+
+            <div id="loading-overlay" class="hidden mt-8">
+                <div class="flex flex-col items-center gap-4 bg-slate-900/80 p-6 rounded-2xl">
+                    <div class="spinner"></div>
+                    <p id="loading-text" class="text-blue-400 font-black text-sm uppercase tracking-widest">Processing...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Processing Engine (Hidden) -->
+    <canvas id="hidden-canvas"></canvas>
+
+    <script>
+        const fileInput = document.getElementById('file-input');
+        const uploadSection = document.getElementById('upload-section');
+        const editorSection = document.getElementById('editor-section');
+        const mediaContent = document.getElementById('media-content');
+        const downloadBtn = document.getElementById('download-btn');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+        const canvas = document.getElementById('hidden-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let fileObj = null;
+        let fileType = '';
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            fileObj = file;
+            fileType = file.type.split('/')[0];
+            uploadSection.classList.add('hidden');
+            editorSection.classList.remove('hidden');
+
+            const url = URL.createObjectURL(file);
+            if (fileType === 'image') {
+                mediaContent.innerHTML = `<img src="${url}" class="max-h-[60vh] object-contain">`;
+            } else {
+                mediaContent.innerHTML = `<video src="${url}" class="max-h-[60vh]" controls muted loop autoplay></video>`;
+            }
+        });
+
+        function applyWatermarkToCanvas(w, h) {
+            // Draw original content must happen before calling this
+            ctx.save();
+            ctx.translate(w / 2, h / 2);
+            ctx.rotate(-30 * Math.PI / 180);
+            
+            // Extreme sizing for "FULL" overlay
+            const fontSize = Math.floor(Math.max(w, h) / 4);
+            ctx.font = `900 ${fontSize}px sans-serif`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Transparency
+            ctx.fillStyle = "rgba(255, 255, 255, 0.18)";
+            
+            // Add subtle stroke to ensure visibility on all backgrounds
+            ctx.strokeStyle = "rgba(0, 0, 0, 0.1)";
+            ctx.lineWidth = fontSize / 40;
+            ctx.strokeText("OVKB", 0, 0);
+            
+            ctx.fillText("OVKB", 0, 0);
+            ctx.restore();
+        }
+
+        downloadBtn.addEventListener('click', () => {
+            if (!fileObj) return;
+            downloadBtn.disabled = true;
+            loadingOverlay.classList.remove('hidden');
+
+            if (fileType === 'image') {
+                processImage();
+            } else {
+                processVideo();
+            }
+        });
+
+        function processImage() {
+            loadingText.innerText = "Applying Watermark...";
+            const img = new Image();
+            img.crossOrigin = "anonymous";
+            img.onload = () => {
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                ctx.drawImage(img, 0, 0);
+                applyWatermarkToCanvas(canvas.width, canvas.height);
+                
+                const link = document.createElement('a');
+                link.download = `OVKB_Protected_${fileObj.name}`;
+                link.href = canvas.toDataURL('image/png', 1.0);
+                link.click();
+                
+                finishProcessing();
+            };
+            img.src = URL.createObjectURL(fileObj);
+        }
+
+        async function processVideo() {
+            const video = mediaContent.querySelector('video');
+            video.pause();
+            video.currentTime = 0;
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+
+            const stream = canvas.captureStream(30);
+            const recorder = new MediaRecorder(stream, { 
+                mimeType: 'video/webm;codecs=vp9',
+                bitsPerSecond: 8000000 
+            });
+            const chunks = [];
+
+            recorder.ondataavailable = (e) => chunks.push(e.data);
+            recorder.onstop = () => {
+                const blob = new Blob(chunks, { type: 'video/webm' });
+                const link = document.createElement('a');
+                link.download = `OVKB_Video_Protected.webm`;
+                link.href = URL.createObjectURL(blob);
+                link.click();
+                finishProcessing();
+            };
+
+            recorder.start();
+            loadingText.innerText = "Encoding Protection... Keep this tab open";
+
+            const step = () => {
+                if (video.ended || video.paused && video.currentTime > 0) {
+                    recorder.stop();
+                    return;
+                }
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                applyWatermarkToCanvas(canvas.width, canvas.height);
+                requestAnimationFrame(step);
+            };
+
+            await video.play();
+            step();
+        }
+
+        function finishProcessing() {
+            downloadBtn.disabled = false;
+            loadingOverlay.classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
