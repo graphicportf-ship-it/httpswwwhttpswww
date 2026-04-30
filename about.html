@@ -10,6 +10,77 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* CSS to create the overlapping, large-image layout */
+        .about-section-full-image {
+            background-color: #0a0a0a; /* Fallback */
+            color: white;
+            padding: 0 !important;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .about-content-wrapper {
+            position: relative;
+            height: 80vh; /* Adjust height of the entire section */
+            display: flex;
+            align-items: center; /* Vertically center content */
+        }
+
+        .about-img-full-width img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: 80% center; /* Adjust image focus point */
+            z-index: 1; /* Place image behind text */
+        }
+
+        .about-text-overlay {
+            position: relative;
+            z-index: 10; /* Place text in front of image */
+            display: flex;
+            align-items: center;
+            justify-content: flex-start; /* Place text box on the left */
+            width: 100%;
+            height: 100%;
+            padding: 50px;
+            padding-left: 10%; /* Adjust padding from left screen edge */
+        }
+
+        .about-text-box {
+            background-color: rgba(0, 0, 0, 0.75); /* Semi-transparent background for text box */
+            max-width: 650px; /* Adjust maximum width of text box */
+            padding: 40px;
+            border-radius: 1rem;
+            box-shadow: 0 1rem 3rem rgba(0,0,0,.3);
+            text-align: left;
+        }
+
+        /* Adjustments for smaller screens */
+        @media (max-width: 991.98px) {
+            .about-content-wrapper {
+                height: auto;
+                min-height: 100vh;
+                display: block; /* Stack on small screens */
+            }
+            .about-img-full-width img {
+                height: 100%;
+            }
+            .about-text-overlay {
+                position: relative;
+                width: 100%;
+                padding: 50px 20px;
+                display: block;
+            }
+            .about-text-box {
+                margin: auto;
+                max-width: 90%;
+            }
+        }
+    </style>
 </head>
 <body>
     <nav class="navbar navbar-expand-lg fixed-top py-3 transition-all" id="main-navbar">
@@ -48,24 +119,21 @@
         </div>
     </header>
 
-    <section class="section" style="background-color: #0a0a0a; color: white; padding: 80px 0;">
-        <div class="container">
-            <div class="row about-content align-items-center">
-                <!-- Text එක ඉස්සරහට (වම් පැත්තට) ගත්තා -->
-                <div class="col-lg-7 order-2 order-lg-1 mt-5 mt-lg-0">
-                    <div class="about-text pe-lg-5">
-                        <p class="fs-5">Oshadha Balasuriya is the creative mind behind Designs by OVKB, an emerging digital art initiative focused on thoughtful and heartfelt design. His journey began with an interest in digital creativity, which gradually developed into a dedicated pursuit of creating meaningful greeting cards and visual artwork.</p>
-                        <p class="fs-5">Through patience, care, and close attention to detail, Oshadha creates designs that convey warmth, sincerity, and emotional connection. Each piece reflects his commitment to authenticity and his desire to create something truly meaningful.</p>
-                        <p class="fs-5">As he continues to grow and refine his work, Oshadha hopes to share Designs by OVKB with a wider audience, offering creations that bring joy, comfort, and connection. His beloved Beagle, Broody, remains a constant and inspiring companion by his side.</p>
-                        <div class="mt-5">
+    <!-- NEW 'About Section' structure using image as large background with text overlay on left -->
+    <section class="section about-section-full-image">
+        <div class="container-fluid p-0">
+            <div class="about-content-wrapper">
+                <div class="about-img-full-width">
+                    <img src="about.png" alt="Oshadha and Broody" class="img-fluid w-100 h-100 rounded-0 object-fit-cover">
+                </div>
+                <div class="about-text-overlay">
+                    <div class="about-text-box">
+                        <p class="fs-5 text-white">Oshadha Balasuriya is the creative mind behind Designs by OVKB, an emerging digital art initiative focused on thoughtful and heartfelt design. His journey began with an interest in digital creativity, which gradually developed into a dedicated pursuit of creating meaningful greeting cards and visual artwork.</p>
+                        <p class="fs-5 text-white">Through patience, care, and close attention to detail, Oshadha creates designs that convey warmth, sincerity, and emotional connection. Each piece reflects his commitment to authenticity and his desire to create something truly meaningful.</p>
+                        <p class="fs-5 text-white">As he continues to grow and refine his work, Oshadha hopes to share Designs by OVKB with a wider audience, offering creations that bring joy, comfort, and connection. His beloved Beagle, Broody, remains a constant and inspiring companion by his side.</p>
+                        <div class="mt-5 text-start">
                             <a href="portfolio.html" class="btn btn-primary rounded-pill px-5">See My Work</a>
                         </div>
-                    </div>
-                </div>
-                <!-- Image එක දකුණු පැත්තට දැම්මා -->
-                <div class="col-lg-5 order-1 order-lg-2">
-                    <div class="about-img-container">
-                        <img src="about.png" alt="Oshadha and Broody" class="img-fluid rounded-4 shadow-lg w-100">
                     </div>
                 </div>
             </div>
