@@ -12,13 +12,11 @@
             color: #f8fafc;
             font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
-
         .glass {
             background: rgba(15, 23, 42, 0.9);
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
         #preview-box {
             position: relative;
             background: #000;
@@ -29,8 +27,7 @@
             justify-content: center;
             min-height: 400px;
         }
-
-        /* Large visual overlay for the browser preview only */
+        /* Browser preview overlay */
         .preview-watermark {
             position: absolute;
             pointer-events: none;
@@ -38,16 +35,14 @@
             font-weight: 900;
             text-transform: uppercase;
             color: rgba(255, 255, 255, 0.2);
-            font-size: 15vw;
+            font-size: 10vw;
             transform: rotate(-30deg);
             white-space: nowrap;
             user-select: none;
         }
-
         #hidden-canvas {
             display: none;
         }
-
         .spinner {
             border: 4px solid rgba(255, 255, 255, 0.1);
             width: 36px;
@@ -56,7 +51,6 @@
             border-left-color: #3b82f6;
             animation: spin 1s linear infinite;
         }
-
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -71,7 +65,6 @@
             <p class="text-slate-500 text-xs font-bold uppercase tracking-[0.2em]">High-Security Media Watermarking</p>
         </header>
 
-        <!-- Step 1: Upload -->
         <div id="upload-section">
             <label for="file-input" class="group border-2 border-dashed border-slate-800 hover:border-blue-500 bg-slate-900/50 rounded-3xl p-20 flex flex-col items-center justify-center cursor-pointer transition-all">
                 <div class="w-20 h-20 bg-blue-500/10 rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
@@ -83,7 +76,6 @@
             </label>
         </div>
 
-        <!-- Step 2: Editor/Preview -->
         <div id="editor-section" class="hidden">
             <div id="preview-box" class="mb-8 border border-slate-800">
                 <div class="preview-watermark">OVKB</div>
@@ -108,7 +100,6 @@
         </div>
     </div>
 
-    <!-- Processing Engine (Hidden) -->
     <canvas id="hidden-canvas"></canvas>
 
     <script>
@@ -142,26 +133,24 @@
             }
         });
 
+        // මචන්, මෙන්න මේ function එක තමයි size එකට අනුව watermark එක හදන්නේ
         function applyWatermarkToCanvas(w, h) {
-            // Draw original content must happen before calling this
             ctx.save();
             ctx.translate(w / 2, h / 2);
             ctx.rotate(-30 * Math.PI / 180);
             
-            // Extreme sizing for "FULL" overlay
-            const fontSize = Math.floor(Math.max(w, h) / 4);
+            // Image/Video එකේ පළලින් 25%ක් font size එක විදිහට ගන්නවා
+            const fontSize = Math.floor(w * 0.25);
             ctx.font = `900 ${fontSize}px sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
-            // Transparency
-            ctx.fillStyle = "rgba(255, 255, 255, 0.18)";
-            
-            // Add subtle stroke to ensure visibility on all backgrounds
+            // Watermark Styles
+            ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
             ctx.strokeStyle = "rgba(0, 0, 0, 0.1)";
             ctx.lineWidth = fontSize / 40;
-            ctx.strokeText("OVKB", 0, 0);
             
+            ctx.strokeText("OVKB", 0, 0);
             ctx.fillText("OVKB", 0, 0);
             ctx.restore();
         }
@@ -192,7 +181,6 @@
                 link.download = `OVKB_Protected_${fileObj.name}`;
                 link.href = canvas.toDataURL('image/png', 1.0);
                 link.click();
-                
                 finishProcessing();
             };
             img.src = URL.createObjectURL(fileObj);
@@ -224,7 +212,7 @@
             };
 
             recorder.start();
-            loadingText.innerText = "Encoding Protection... Keep this tab open";
+            loadingText.innerText = "Encoding... Please wait";
 
             const step = () => {
                 if (video.ended || video.paused && video.currentTime > 0) {
