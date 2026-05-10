@@ -27,6 +27,7 @@
             justify-content: center;
             min-height: 400px;
         }
+        /* CSS preview watermark is only for video now */
         .preview-watermark {
             position: absolute;
             pointer-events: none;
@@ -77,7 +78,6 @@
 
         <div id="editor-section" class="hidden">
             <div id="preview-box" class="mb-8 border border-slate-800">
-                <div class="preview-watermark">OVKB</div>
                 <div id="media-content" class="w-full h-full flex items-center justify-center"></div>
             </div>
 
@@ -115,33 +115,19 @@
         let fileObj = null;
         let fileType = '';
 
-        fileInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            fileObj = file;
-            fileType = file.type.split('/')[0];
-            uploadSection.classList.add('hidden');
-            editorSection.classList.remove('hidden');
-            const url = URL.createObjectURL(file);
-            if (fileType === 'image') {
-                mediaContent.innerHTML = `<img src="${url}" class="max-h-[60vh] object-contain">`;
-            } else {
-                mediaContent.innerHTML = `<video src="${url}" class="max-h-[60vh]" controls muted loop autoplay></video>`;
-            }
-        });
-
-        // මචන්, මේක තමයි මැදටම එන්න හදපු logic එක
+        // මචන්, මෙන්න මේ function එක තමයි size එකට අනුව watermark එක හදන්නේ
         function applyWatermarkToCanvas(w, h) {
             ctx.save();
             ctx.translate(w / 2, h / 2); // හරියටම මැද
             ctx.rotate(-30 * Math.PI / 180);
             
-            // කුඩාම පැත්තට අනුව font size එක තීරණය කරනවා (වැඩිපුර ලොකු වෙන්නේ නැති වෙන්න)
+            // කුඩාම පැත්තට අනුව font size එක තීරණය කරනවා
             const fontSize = Math.floor(Math.min(w, h) * 0.28);
             ctx.font = `900 ${fontSize}px sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
+            // Watermark Styles - Visibility එක වැඩි කරලා තියෙන්නේ
             ctx.fillStyle = "rgba(255, 255, 255, 0.22)";
             ctx.strokeStyle = "rgba(0, 0, 0, 0.15)";
             ctx.lineWidth = fontSize / 45;
@@ -151,32 +137,50 @@
             ctx.restore();
         }
 
-        downloadBtn.addEventListener('click', () => {
-            if (!fileObj) return;
-            downloadBtn.disabled = true;
-            loadingOverlay.classList.remove('hidden');
-            if (fileType === 'image') processImage(); else processVideo();
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            fileObj = file;
+            fileType = file.type.split('/')[0];
+            uploadSection.classList.add('hidden');
+            editorSection.classList.remove('hidden');
+            const url = URL.createObjectURL(file);
+            
+            if (fileType === 'image') {
+                const img = new Image();
+                img.onload = () => {
+                    // Image එකේ ඇත්තම size එකට canvas එක හදනවා
+                    canvas.width = img.naturalWidth;
+                    canvas.height = img.naturalHeight;
+                    ctx.drawImage(img, 0, 0);
+                    // මෙතැනදී watermark එක ඇත්ත photo එකටම apply කරනවා
+                    applyWatermarkToCanvas(canvas.width, canvas.height);
+                    
+                    // දැන් preview එක විදිහට පෙන්නන්නේ watermark එක තියෙන නියම photo එකයි
+                    mediaContent.innerHTML = `<img src="${canvas.toDataURL('image/png', 1.0)}" class="max-h-[60vh] object-contain">`;
+                };
+                img.src = url;
+            } else {
+                // Video සඳහා preview එක පරණ විදිහටම (මෙතැනදී ඇත්ත watermark එක තවම apply වෙලා නැහැ)
+                mediaContent.innerHTML = `<div class="preview-watermark">OVKB</div><video src="${url}" class="max-h-[60vh]" controls muted loop autoplay></video>`;
+            }
         });
 
-        function processImage() {
-            loadingText.innerText = "Applying Protection...";
-            const img = new Image();
-            img.crossOrigin = "anonymous";
-            img.onload = () => {
-                // Image එකේ ඇත්තම size එකට canvas එක හදනවා
-                canvas.width = img.naturalWidth;
-                canvas.height = img.naturalHeight;
-                ctx.drawImage(img, 0, 0);
-                applyWatermarkToCanvas(canvas.width, canvas.height);
-                
+        downloadBtn.addEventListener('click', () => {
+            if (!fileObj) return;
+            // Image එකක් නම්, preview එකට හදපු canvas එකම download කරනවා.
+            if (fileType === 'image') {
                 const link = document.createElement('a');
                 link.download = `OVKB_${fileObj.name}`;
                 link.href = canvas.toDataURL('image/png', 1.0);
                 link.click();
-                finishProcessing();
-            };
-            img.src = URL.createObjectURL(fileObj);
-        }
+            } else {
+                // Video නම්, encoding process එක start කරනවා
+                downloadBtn.disabled = true;
+                loadingOverlay.classList.remove('hidden');
+                processVideo();
+            }
+        });
 
         async function processVideo() {
             const video = mediaContent.querySelector('video');
