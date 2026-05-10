@@ -27,14 +27,13 @@
             justify-content: center;
             min-height: 400px;
         }
-        /* Browser preview overlay */
         .preview-watermark {
             position: absolute;
             pointer-events: none;
             z-index: 10;
             font-weight: 900;
             text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.15);
             font-size: 10vw;
             transform: rotate(-30deg);
             white-space: nowrap;
@@ -119,12 +118,10 @@
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-
             fileObj = file;
             fileType = file.type.split('/')[0];
             uploadSection.classList.add('hidden');
             editorSection.classList.remove('hidden');
-
             const url = URL.createObjectURL(file);
             if (fileType === 'image') {
                 mediaContent.innerHTML = `<img src="${url}" class="max-h-[60vh] object-contain">`;
@@ -133,22 +130,21 @@
             }
         });
 
-        // මචන්, මෙන්න මේ function එක තමයි size එකට අනුව watermark එක හදන්නේ
+        // මචන්, මේක තමයි මැදටම එන්න හදපු logic එක
         function applyWatermarkToCanvas(w, h) {
             ctx.save();
-            ctx.translate(w / 2, h / 2);
+            ctx.translate(w / 2, h / 2); // හරියටම මැද
             ctx.rotate(-30 * Math.PI / 180);
             
-            // Image/Video එකේ පළලින් 25%ක් font size එක විදිහට ගන්නවා
-            const fontSize = Math.floor(w * 0.25);
+            // කුඩාම පැත්තට අනුව font size එක තීරණය කරනවා (වැඩිපුර ලොකු වෙන්නේ නැති වෙන්න)
+            const fontSize = Math.floor(Math.min(w, h) * 0.28);
             ctx.font = `900 ${fontSize}px sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
-            // Watermark Styles
-            ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
-            ctx.strokeStyle = "rgba(0, 0, 0, 0.1)";
-            ctx.lineWidth = fontSize / 40;
+            ctx.fillStyle = "rgba(255, 255, 255, 0.22)";
+            ctx.strokeStyle = "rgba(0, 0, 0, 0.15)";
+            ctx.lineWidth = fontSize / 45;
             
             ctx.strokeText("OVKB", 0, 0);
             ctx.fillText("OVKB", 0, 0);
@@ -159,26 +155,22 @@
             if (!fileObj) return;
             downloadBtn.disabled = true;
             loadingOverlay.classList.remove('hidden');
-
-            if (fileType === 'image') {
-                processImage();
-            } else {
-                processVideo();
-            }
+            if (fileType === 'image') processImage(); else processVideo();
         });
 
         function processImage() {
-            loadingText.innerText = "Applying Watermark...";
+            loadingText.innerText = "Applying Protection...";
             const img = new Image();
             img.crossOrigin = "anonymous";
             img.onload = () => {
+                // Image එකේ ඇත්තම size එකට canvas එක හදනවා
                 canvas.width = img.naturalWidth;
                 canvas.height = img.naturalHeight;
                 ctx.drawImage(img, 0, 0);
                 applyWatermarkToCanvas(canvas.width, canvas.height);
                 
                 const link = document.createElement('a');
-                link.download = `OVKB_Protected_${fileObj.name}`;
+                link.download = `OVKB_${fileObj.name}`;
                 link.href = canvas.toDataURL('image/png', 1.0);
                 link.click();
                 finishProcessing();
@@ -190,40 +182,28 @@
             const video = mediaContent.querySelector('video');
             video.pause();
             video.currentTime = 0;
-
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
-
             const stream = canvas.captureStream(30);
-            const recorder = new MediaRecorder(stream, { 
-                mimeType: 'video/webm;codecs=vp9',
-                bitsPerSecond: 8000000 
-            });
+            const recorder = new MediaRecorder(stream, { mimeType: 'video/webm;codecs=vp9', bitsPerSecond: 8000000 });
             const chunks = [];
-
             recorder.ondataavailable = (e) => chunks.push(e.data);
             recorder.onstop = () => {
                 const blob = new Blob(chunks, { type: 'video/webm' });
                 const link = document.createElement('a');
-                link.download = `OVKB_Video_Protected.webm`;
+                link.download = `OVKB_Protected_Video.webm`;
                 link.href = URL.createObjectURL(blob);
                 link.click();
                 finishProcessing();
             };
-
             recorder.start();
-            loadingText.innerText = "Encoding... Please wait";
-
+            loadingText.innerText = "Encoding Protection...";
             const step = () => {
-                if (video.ended || video.paused && video.currentTime > 0) {
-                    recorder.stop();
-                    return;
-                }
+                if (video.ended || (video.paused && video.currentTime > 0)) { recorder.stop(); return; }
                 ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
                 applyWatermarkToCanvas(canvas.width, canvas.height);
                 requestAnimationFrame(step);
             };
-
             await video.play();
             step();
         }
